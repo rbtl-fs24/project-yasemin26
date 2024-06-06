@@ -1,0 +1,302 @@
+---
+title: "Capstone Project"
+subtitle: "“How do individuals of an age between 20-30 in Germany perceive the importance of managing waste compared to other personal actions in mitigating the effects of climate change?”"
+author: "Yasemin Kurtis"
+date: "`r Sys.Date()`"
+format:
+  html:
+    toc: true
+    toc-title: "Table of Contents"
+    toc-depth: 2
+bibliography: bibliography.bib
+---
+
+```{r,warning=FALSE, echo=TRUE, message=FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(here)
+library(knitr)
+library(gt)
+```
+
+# Introduction
+
+“Climate change is a terrible problem, and it absolutely needs to be solved [@zotero-70]." This quote by Bill Gates underlines that this topic deserves to be a huge priority.Understanding the perspectives of young adults on their role in addressing climate change is important for creating effective strategies to encourage sustainable behaviors. This study examines individuals aged 20-30 in Germany, focusing on their views on the importance of waste management compared to other personal actions, such as traveling smart, eating sustainably, and conserving energy. By analyzing these perspectives, the study aims to identify potential gaps between awareness and action, offering insights into how to better engage in order to mitigate climate change.
+
+# Method
+
+Data for this study was collected through a detailed survey designed to capture both demographic information and perceptions of climate change. The survey included questions on gender and political leaning, and asked 25 participants (13 female and 12 male) to rate their agreement with statements about climate change and personal responsibility on a scale from 1 (strongly disagree) to 5 (strongly agree). Additionally, participants were asked about their behaviors in four key areas: waste management, traveling smart, eating sustainably, and conserving energy. Respondents who recognized the importance of these categories were then asked to allocate 100 tokens among them, reflecting the relative importance they attributed to each in combating climate change. The collected data was cleaned and analyzed to draw meaningful conclusions about the perceptions and behaviors of young adults in Germany.
+
+```{r,warning=FALSE, echo=TRUE, message=FALSE}
+processed_data_file <- here("data", "processed", "cleaned_capstone_data.csv")
+data <- read_csv(processed_data_file)
+```
+
+```{r}
+gender_counts <- table(data$gender)
+print(gender_counts)
+```
+
+# Results
+
+```{r,warning=FALSE, echo=TRUE}
+#| label: fig-political_climate_change_plot
+#| fig-cap: "The Importance of climate change for participants with different political leanings"
+
+# Calculate the mean climate change perception by political leaning
+political_climate_change <- data |>
+  group_by(political_leaning) |>
+  summarize(mean_climate_change = mean(climate_change, na.rm = TRUE))
+
+# Save the summarized data
+write_csv(political_climate_change, file = here("data", "final", "political_climate_change.csv"))
+
+# Create a bar plot of mean climate change perception by political leaning with specified colors
+political_climate_change_plot <- ggplot(political_climate_change, aes(x = political_leaning, y = mean_climate_change, fill = political_leaning)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = round(mean_climate_change, 1)), vjust = -0.5, size = 4) +
+  theme_minimal() +
+  labs(title = "Climate Change Perception by Political Leaning",
+       x = "Political Leaning",
+       y = "Climate change importance") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.2))) +
+  scale_fill_manual(values = c("moderate" = "lightgreen",
+                               "prefer not to say" = "gray",
+                               "somewhat conservative" = "orange",
+                               "somewhat liberal" = "lightblue",
+                               "very liberal" = "steelblue")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12),  
+        axis.text.y = element_text(size = 12),  
+        axis.title.x = element_text(size = 14),  
+        axis.title.y = element_text(size = 14),  
+        legend.position = "none")  
+
+# Print the plot
+political_climate_change_plot
+
+```
+
+The results in @fig-political_climate_change_plot suggest that individuals with moderate and liberal political leanings (both somewhat and very liberal) tend to perceive climate change as a significant issue, agreeing strongly with the statements that climate change exists, is a threat to society, and causes future damage. On the other hand, those with a somewhat conservative leaning have a more neutral perspective on the statements, showing less agreement with the severity and impact of climate change.The political leaning "conservative" was not represented among the responders. This was also the result of a study published in the Global Environmental Change Magazine [@zotero-68].
+
+```{r,warning=FALSE, echo=TRUE }
+#| label: tbl-summary_statistics
+#| tbl-cap: "Statistics of Climate change importance and the importance of personal behaviour to mitigate climate change"
+
+
+
+# Calculate summary statistics for climate change and personal behaviour perception
+summary_statistics <- data |>
+  summarize(
+    mean_cc = mean(climate_change, na.rm = TRUE),
+    sd_cc = sd(climate_change, na.rm = TRUE),
+    median_cc = median(climate_change, na.rm = TRUE),
+    IQR_cc = IQR(climate_change, na.rm = TRUE),
+    mean_pb = mean(personal_behaviour, na.rm = TRUE),
+    sd_pb = sd(personal_behaviour, na.rm = TRUE),
+    median_pb = median(personal_behaviour, na.rm = TRUE),
+    IQR_pb = IQR(personal_behaviour, na.rm = TRUE)
+  )
+# Save the summarized data
+write_csv(summary_statistics, file = here("data", "final", 
+"summary_statistics.csv"))
+
+summary_statistics |>
+  gt() |>
+  tab_header(
+    title = "Summary Statistics for Climate Change and Personal Behaviour  Perception",
+    subtitle = "Mean, Standard Deviation, Median, and Interquartile Range"
+  ) |>
+  cols_label(
+    mean_cc = "Mean CC",
+    sd_cc = "SD CC",
+    median_cc = "Median CC",
+    mean_pb = "Mean PB",
+    sd_pb = "SD PB",
+    median_pb = "Median PB",
+  ) |>
+  fmt_number(
+    columns = vars(mean_cc, sd_cc, median_cc, IQR_cc,
+                   mean_pb, sd_pb, median_pb, IQR_pb),
+    decimals = 2
+  ) |>
+  tab_source_note(
+    source_note = "CC: Climate Change Importance\nPB: Importance of Personal Behavior in Mitigating Climate Change"
+  )
+
+```
+
+The results shown in @tbl-summary_statistics demonstrate a distinct difference between the perception of climate change as a critical issue and the belief in the impact of personal behavior on mitigating climate change. Respondents strongly acknowledge the importance of climate change, as indicated by high mean and median scores with low variability. However, there is less agreement regarding the significance of individual actions, as reflected by more moderate mean and median scores and a higher standard deviation. This indicates that while awareness of climate change is high, there is less certainty about the effectiveness of personal behavior in addressing it. The moderate scores and higher variability suggest diverse opinions on the extent to which personal actions can influence. On the contrary, a survey of the Deutsche Bundesbank says that individuals can help mitigate climate change directly by changing their everyday activities and consumption behavior [@zotero-69].
+
+```{r,warning=FALSE, echo=TRUE}
+#| label: tbl-correlations
+#| tbl-cap: "How do the personal behviour and the importance weiging correlate? "
+# Filter data to only include participants who filled out the weightings
+data_filtered <- data |>
+  filter(!is.na(waste_tokens) & !is.na(travel_tokens) & !is.na(eat_tokens) & !is.na(energy_tokens))
+
+# Calculate the mean scores for each behavior category
+behavior_scores <- data_filtered |>
+  summarize(
+    mean_waste = mean(waste_average, na.rm = TRUE),
+    mean_travel = mean(travel_average, na.rm = TRUE),
+    mean_eat = mean(eat_average, na.rm = TRUE),
+    mean_energy = mean(energy_average, na.rm = TRUE)
+  )
+
+# Extract weightings
+weightings <- data_filtered |>
+  summarize(
+    mean_waste_tokens = mean(waste_tokens, na.rm = TRUE),
+    mean_travel_tokens = mean(travel_tokens, na.rm = TRUE),
+    mean_eat_tokens = mean(eat_tokens, na.rm = TRUE),
+    mean_energy_tokens = mean(energy_tokens, na.rm = TRUE)
+  )
+
+# Calculate correlations
+correlations <- data.frame(
+  Category = c("Waste Management", "Travel Smart", "Eat Sustainable", "Conserve Energy"),
+  Correlation = c(
+    cor(data_filtered$waste_average, data_filtered$waste_tokens, use = "complete.obs"),
+    cor(data_filtered$travel_average, data_filtered$travel_tokens, use = "complete.obs"),
+    cor(data_filtered$eat_average, data_filtered$eat_tokens, use = "complete.obs"),
+    cor(data_filtered$energy_average, data_filtered$energy_tokens, use = "complete.obs")
+  )
+)
+
+# Print the correlations
+correlations |>
+  gt() |>
+  tab_header(
+    title = "Correlation between Behavior Scores and Importance Weightings",
+    subtitle = "Correlation Coefficients for Each Category"
+  ) |>
+  cols_label(
+    Category = "Category",
+    Correlation = "Correlation Coefficient"
+  ) |>
+  fmt_number(
+    columns = vars(Correlation),
+    decimals = 2
+  )
+
+# Save the correlations data
+write_csv(correlations, file = here("data", "final", "correlations.csv"))
+
+```
+
+```{r,warning=FALSE, echo=TRUE}
+#| label: fig-scatterplot_waste
+#| fig-cap: "Correlation Scatterplot Waste management "
+
+scatterplot_waste <- ggplot(data_filtered, aes(x = waste_average, y = waste_tokens)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_minimal() +
+  labs(title = "Waste Management: Behavior Score vs. Importance Weighting",
+       x = "Behavior Score",
+       y = "Importance Weighting")
+
+scatterplot_waste
+
+
+```
+
+```{r}
+#| label: fig-scatterplot_travel
+#| fig-cap: "Correlation Scatterplot Travel Smart "
+
+scatterplot_travel <- ggplot(data_filtered, aes(x = travel_average, y = travel_tokens)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_minimal() +
+  labs(title = "Travel Smart: Behavior Score vs. Importance Weighting",
+       x = "Behavior Score",
+       y = "Importance Weighting")
+
+scatterplot_travel
+
+```
+
+```{r}
+#| label: fig-scatterplot_eat
+#| fig-cap: "Correlation Scatterplot Eat Sustainably "
+
+scatterplot_eat <- ggplot(data_filtered, aes(x = eat_average, y = eat_tokens)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_minimal() +
+  labs(title = "Eat Sustainable: Behavior Score vs. Importance Weighting",
+       x = "Behavior Score",
+       y = "Importance Weighting")
+
+scatterplot_eat
+
+```
+
+```{r}
+#| label: fig-scatterplot_energy
+#| fig-cap: "Correlation Scatterplot Conserve Energy "
+scatterplot_energy <- ggplot(data_filtered, aes(x = energy_average, y = energy_tokens)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_minimal() +
+  labs(title = "Conserve Energy: Behavior Score vs. Importance Weighting",
+       x = "Behavior Score",
+       y = "Importance Weighting")
+
+scatterplot_energy
+
+```
+
+```{r}
+
+# Save the filtered data
+write_csv(data_filtered, file = here("data", "final", "data_scatterenergy.csv"))
+```
+
+The scatterplots @fig-scatterplot_waste, @fig-scatterplot_travel, @fig-scatterplot_eat and @fig-scatterplot_energy in and correlation coefficients from @tbl-correlations reveal varying degrees of alignment between participants' climate-friendly behaviors and the importance they assign to these behaviors in mitigating climate change:
+
+-   Waste Management and Travel Smart: There is no significant correlation, indicating a disconnect between behavior and perceived importance in these categories.
+
+-   Eat Sustainable: There is a moderate positive correlation, suggesting better alignment between behavior and perceived importance.
+
+-   Conserve Energy: There is a weak negative correlation, which is unexpected and indicates that participants who conserve energy might not view it as critically important in addressing climate change.
+
+```{r,warning=FALSE, echo=TRUE}
+#| label: fig-histogram_wm
+#| fig-cap: "Histogram Importance of Waste Management to mitigate climate change "
+# Filter data to only include participants who filled out the weightings
+data_filtered <- data |>
+  filter(!is.na(waste_tokens))
+
+# Create a histogram of the weightings for Waste Management
+histogram_wm <- ggplot(data_filtered, aes(x = waste_tokens)) +
+  geom_histogram(binwidth = 5, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Importance of Waste Management in Combating Climate Change",
+       x = "Weighting (Tokens)",
+       y = "Frequency")
+
+# Print the histogram
+histogram_wm
+
+# Save the filtered data for waste management weightings
+write_csv(data_filtered, file = here("data", "final", "waste_management_weightings.csv"))
+```
+
+The distribution shown in @fig-histogram_wm indicates that while Waste Management is considered an important aspect of combating climate change by many participants, it is not uniformly seen as the most critical factor. The majority of participants assigned a moderate level of importance (10-30 tokens), reflecting a balanced view that recognizes the significance of Waste Management without overemphasizing it compared to other categories. The presence of a few high outliers suggests that there is a subset of participants who believe strongly in the critical role of Waste Management.
+
+# Conclusion
+
+To sum up the report the key findings are listed in te following:
+
+-   Most participants agree that climate change is a significant threat and recognize the need for action.
+
+-   Participants have mixed views on the importance of their personal behavior in addressing climate change, with some expressing strong commitment and others less so.
+
+-   Political leaning impacts perceptions, with more liberal participants showing higher concern for climate change and personal responsibility compared to conservative participants.
+
+-   There is a gap between the high importance assigned to waste management and other sustainable actions and the actual engagement in these behaviors.
+
+-   Waste management is seen as important, with participants allocating a portion of their tokens to this category, although not significantly more than to other categories.

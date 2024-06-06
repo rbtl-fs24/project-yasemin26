@@ -1,0 +1,13 @@
+﻿variable_name;description
+gender;Gender of the participant
+political_leaning;Political leaning of the participant
+climate_change;Average score indicating the perception of climate change importance
+personal_behaviour;Average score indicating the perceived importance of personal behavior in mitigating climate change
+waste_average;Average score for waste management behavior
+travel_average;Average score for smart travel behavior
+eat_average;Average score for sustainable eating behavior
+energy_average;Average score for energy conservation behavior
+waste_tokens;Number of tokens allocated to waste management
+travel_tokens;Number of tokens allocated to smart travel
+eat_tokens;Number of tokens allocated to sustainable eating
+energy_tokens;Number of tokens allocated to energy conservation
