@@ -252,6 +252,9 @@ scatterplot_energy
 ```{r}
 
 # Save the filtered data
+write_csv(data_filtered, file = here("data", "final", "data_waste.csv"))
+write_csv(data_filtered, file = here("data", "final", "data_travel.csv"))
+write_csv(data_filtered, file = here("data", "final", "data_eat.csv"))
 write_csv(data_filtered, file = here("data", "final", "data_scatterenergy.csv"))
 ```
 
